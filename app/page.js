@@ -15,23 +15,39 @@ const Home = () => {
   const [attemptsRemaining, setAttemptsRemaining] = useState(3);
   const [isLoading, setIsLoading] = useState(true);
   const [gameOverModalOpen, setGameOverModalOpen] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
 
   useEffect(() => {
-    generateNewChallenge();
+    const lastChallengeDate = localStorage.getItem('lastChallengeDate');
+    const today = new Date().toLocaleDateString();
+
+    if (lastChallengeDate === today) {      
+      const storedChallenge = localStorage.getItem('dailyChallenge');
+
+      if (storedChallenge) {
+        setDailyChallenge(JSON.parse(storedChallenge));
+      }
+      setIsLoading(false);
+    } else {      
+      generateNewChallenge();
+    }
   }, []);
   
   const generateNewChallenge = () => {
     const countryCodesList = Object.keys(country);
-    if (countryCodesList.length === 0) {
-      console.error('Lista de códigos de países vazia. Não foi possível gerar o desafio.');
-      return;
-    }
     const randomIndex = Math.floor(Math.random() * countryCodesList.length);
     const countryCode = countryCodesList[randomIndex];
     const countryName = country[countryCode];
     const flagUrl = `https://flagcdn.com/${countryCode}.svg`;
+    const newChallenge = ({ countryCode, countryName, flagUrl, correctAnswer: countryName })
 
-    setDailyChallenge({ countryCode, countryName, flagUrl, correctAnswer: countryName });
+    setDailyChallenge(newChallenge);
+
+    localStorage.setItem('dailyChallenge', JSON.stringify(newChallenge));
+        
+    const today = new Date().toLocaleDateString();
+    localStorage.setItem('lastChallengeDate', today);
+
     setIsLoading(false);
   };
 
@@ -47,8 +63,9 @@ const Home = () => {
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-          theme: "colored"        
-        });      
+          theme: "colored"                  
+        });
+        setShowAnswer(true);      
       } else {       
         toast.error('Resposta incorreta. Tente novamente.', {
           position: "top-center",
@@ -63,16 +80,13 @@ const Home = () => {
         setAttemptsRemaining(prevAttempts => prevAttempts - 1);
       }
     } 
-    if (attemptsRemaining === 0) {
+    if (attemptsRemaining === 1) {
       setGameOverModalOpen(true);
     }
   };
   const handleGameOverModalClose = () => {
     setGameOverModalOpen(false);
-    setTimeout(() => {
-      window.location.reload();
-      setIsLoading(true)
-    }, 200);
+    setShowAnswer(true);    
   };
     
   return (
@@ -95,10 +109,12 @@ const Home = () => {
       <div className='bg-azul rounded-2xl w-[60dvh] h-[60dvh] flex flex-col items-center mt-20'>
       <ToastContainer />
       {isLoading && <p className='mt-[50%] font-bold'>Carregando desafio...</p>}
-      {!isLoading && dailyChallenge && (
+      {!isLoading && dailyChallenge &&(
         <div className='flex flex-col justify-center items-center mt-12'>
           <Flag flagUrl={dailyChallenge.flagUrl} />
-          
+          {showAnswer &&(
+            <p className='text-white font-bold text-2xl mt-2'>{dailyChallenge.countryName}</p>
+          )}
           <p className='text-white font-bold text-sm mt-5'>Tentativas restantes: {attemptsRemaining}</p>
           
           <p className='text-white font-bold text-2xl my-5'>Qual é essa bandeira?</p>

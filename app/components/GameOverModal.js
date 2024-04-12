@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 
-const GameOverModal = ({ isOpen, onClose }) => {
+const GameOverModal = ({ isOpen, onClose, answer }) => {
   return (
     <Modal
       className='flex flex-col items-center'
