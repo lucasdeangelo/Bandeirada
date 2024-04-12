@@ -16,14 +16,24 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [gameOverModalOpen, setGameOverModalOpen] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
-
+  const [disabledInput, setDisabledInput] = useState(false);
+  
+  useEffect(() => {
+    const gameDisabled = localStorage.getItem('gameDisabled');
+    if (gameDisabled === 'true') {
+      setShowAnswer(true);
+    } else {
+      generateNewChallenge();
+    }
+  }, []);
+  
   useEffect(() => {
     const lastChallengeDate = localStorage.getItem('lastChallengeDate');
     const today = new Date().toLocaleDateString();
 
     if (lastChallengeDate === today) {      
       const storedChallenge = localStorage.getItem('dailyChallenge');
-
+      
       if (storedChallenge) {
         setDailyChallenge(JSON.parse(storedChallenge));
       }
@@ -52,41 +62,53 @@ const Home = () => {
   };
 
   const handleInputChange = (inputValue) => {
-    if (dailyChallenge && dailyChallenge.correctAnswer) {
-      const isCorrect = inputValue.toLowerCase() === dailyChallenge.correctAnswer.toLowerCase();
-      if (isCorrect) {     
-        toast.success('Resposta Correta!', {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored"                  
-        });
-        setShowAnswer(true);      
-      } else {       
-        toast.error('Resposta incorreta. Tente novamente.', {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored"        
-        });        
-        setAttemptsRemaining(prevAttempts => prevAttempts - 1);
+    if (!disabledInput) {    
+      if (dailyChallenge && dailyChallenge.correctAnswer) {
+        const isCorrect = inputValue.toLowerCase() === dailyChallenge.correctAnswer.toLowerCase();
+        
+        if (isCorrect) {     
+          toast.success('Resposta Correta!', {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"                  
+          });
+          setShowAnswer(true); 
+          setDisabledInput(true);   
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);  
+          localStorage.setItem('gameDisabled', 'true');
+        } else {       
+          toast.error('Resposta incorreta. Tente novamente.', {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored"        
+          });        
+          setAttemptsRemaining(prevAttempts => prevAttempts - 1);
+        }
+        if (attemptsRemaining === 1 && !isCorrect) {
+          setGameOverModalOpen(true);
+          setDisabledInput(true);
+          localStorage.setItem('gameDisabled', 'true');
+        }
       }
     } 
-    if (attemptsRemaining === 1) {
-      setGameOverModalOpen(true);
-    }
   };
   const handleGameOverModalClose = () => {
     setGameOverModalOpen(false);
     setShowAnswer(true);    
+    setDisabledInput(true);
+    localStorage.setItem('gameDisabled', 'true');
   };
     
   return (
@@ -121,7 +143,8 @@ const Home = () => {
           
           <Options
             handleInputChange={handleInputChange}
-            countries={Object.values(country)}                       
+            countries={Object.values(country)}
+            disabled={disabledInput}                       
           />
         </div>        
       )}

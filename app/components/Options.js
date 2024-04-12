@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import send from '@/public/send.svg';
 
@@ -9,7 +9,13 @@ const removeAccents = (str) => {
 const Options = ({ handleInputChange, countries }) => {
   const [inputValue, setInputValue] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const [gameDisabled, setGameDisabled] = useState(false);
 
+  useEffect(() => {
+    const isGameDisabled = localStorage.getItem('gameDisabled') === 'true';
+    setGameDisabled(isGameDisabled);
+  }, []);
+  
   const handleChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
@@ -23,14 +29,18 @@ const Options = ({ handleInputChange, countries }) => {
   };
 
   const handleSubmit = (country) => {
-    handleInputChange(country);
-    setInputValue('');
-    setSuggestions([]);
+    if (!gameDisabled) {
+      handleInputChange(country);
+      setInputValue('');
+      setSuggestions([]);
+    }
   };
 
   const handleSelectCountry = (country) => {
+    if (!gameDisabled) {
     setInputValue(country);
     setSuggestions([]); 
+    }
   };
 
   return (
@@ -42,15 +52,17 @@ const Options = ({ handleInputChange, countries }) => {
           placeholder="Digite o nome do país"
           value={inputValue}
           onChange={handleChange}
+          disabled={gameDisabled}
           />
         <button
           className='bg-slate-100 ml-2 h-12 px-3 rounded-xl' 
           onClick={() => handleSubmit(inputValue)}
+          disabled={gameDisabled}
         >
           <Image src={send} width={25} height={25} alt={'enviar'}/>
         </button>
       </div>
-      <div className='flex mt-5'>
+      <div className='flex flex-col mt-5'>
         {suggestions.length > 0 && (
           <ul className="bg-slate-100 border border-gray-300 text-black rounded-xl w-[32dvh] max-w-[32dvh] max-h-48 overflow-y-auto">
             {suggestions.map((country, index) => (
