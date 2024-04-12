@@ -2,8 +2,11 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';import Flag from './components/flag';
+import 'react-toastify/dist/ReactToastify.css';
+import Flag from './components/flag';
 import Options from './components/Options';
+import country from './components/country';
+import GameOverModal from './components/GameOverModal';
 import logo from '@/public/logo.svg';
 import mais from '@/public/mais.svg';
 
@@ -11,46 +14,65 @@ const Home = () => {
   const [dailyChallenge, setDailyChallenge] = useState(null);
   const [attemptsRemaining, setAttemptsRemaining] = useState(3);
   const [isLoading, setIsLoading] = useState(true);
-  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [gameOverModalOpen, setGameOverModalOpen] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => {
-      const challenge = {
-        flagUrl: 'https://flagsapi.com/BE/flat/64.png', //url da bandeira
-        correctAnswer: 'Bélgica'
-      };
-      setDailyChallenge(challenge);
-      setIsLoading(false);
-    }, 2000);
+    generateNewChallenge();
   }, []);
+  
+  const generateNewChallenge = () => {
+    const countryCodesList = Object.keys(country);
+    if (countryCodesList.length === 0) {
+      console.error('Lista de códigos de países vazia. Não foi possível gerar o desafio.');
+      return;
+    }
+    const randomIndex = Math.floor(Math.random() * countryCodesList.length);
+    const countryCode = countryCodesList[randomIndex];
+    const countryName = country[countryCode];
+    const flagUrl = `https://flagcdn.com/${countryCode}.svg`;
+
+    setDailyChallenge({ countryCode, countryName, flagUrl, correctAnswer: countryName });
+    setIsLoading(false);
+  };
 
   const handleInputChange = (inputValue) => {
-    const isCorrect = inputValue.toLowerCase() === dailyChallenge?.correctAnswer.toLowerCase();
-    if (isCorrect) {     
-      toast.success('Resposta Correta!', {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"        
-      });      
-    } else {       
-      toast.error('Resposta incorreta. Tente novamente.', {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored"        
-      });        
-      setAttemptsRemaining(prevAttempts => prevAttempts - 1);
+    if (dailyChallenge && dailyChallenge.correctAnswer) {
+      const isCorrect = inputValue.toLowerCase() === dailyChallenge.correctAnswer.toLowerCase();
+      if (isCorrect) {     
+        toast.success('Resposta Correta!', {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored"        
+        });      
+      } else {       
+        toast.error('Resposta incorreta. Tente novamente.', {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored"        
+        });        
+        setAttemptsRemaining(prevAttempts => prevAttempts - 1);
+      }
+    } 
+    if (attemptsRemaining === 1) {
+      setGameOverModalOpen(true);
     }
-    setFeedbackMessage(feedbackMessage);
+  };
+  const handleGameOverModalClose = () => {
+    setGameOverModalOpen(false);
+    setTimeout(() => {
+      window.location.reload();
+      setIsLoading(true)
+    }, 200);
   };
     
   return (
@@ -77,17 +99,17 @@ const Home = () => {
         <div className='flex flex-col justify-center items-center mt-12'>
           <Flag flagUrl={dailyChallenge.flagUrl} />
           
-          <p className='text-white font-bold text-sm'>Tentativas restantes: {attemptsRemaining}</p>
+          <p className='text-white font-bold text-sm mt-5'>Tentativas restantes: {attemptsRemaining}</p>
           
           <p className='text-white font-bold text-2xl my-5'>Qual é essa bandeira?</p>
           
           <Options
-            handleInputChange={handleInputChange}
-            
+            handleInputChange={handleInputChange}                       
           />
         </div>        
       )}
-      </div>      
+      </div>
+      <GameOverModal isOpen={gameOverModalOpen} onClose={handleGameOverModalClose} />      
     </div>
   );
 };
