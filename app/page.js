@@ -63,7 +63,7 @@ const Home = () => {
         setAttemptsRemaining(prevAttempts => prevAttempts - 1);
       }
     } 
-    if (attemptsRemaining === 1) {
+    if (attemptsRemaining === 0) {
       setGameOverModalOpen(true);
     }
   };
@@ -104,7 +104,8 @@ const Home = () => {
           <p className='text-white font-bold text-2xl my-5'>Qual é essa bandeira?</p>
           
           <Options
-            handleInputChange={handleInputChange}                       
+            handleInputChange={handleInputChange}
+            countries={Object.values(country)}                       
           />
         </div>        
       )}
