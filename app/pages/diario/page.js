@@ -21,8 +21,13 @@ const Diario = () => {
     const gameDisabled = localStorage.getItem('gameDisabled');
     if (gameDisabled === 'true') {
       setShowAnswer(true);
-    } else {
-      generateNewChallenge();
+    } 
+  }, []);
+
+  useEffect(() => {
+    const storedAttempts = localStorage.getItem('attemptsRemaining');
+    if (storedAttempts) {
+      setAttemptsRemaining(parseInt(storedAttempts));
     }
   }, []);
 
@@ -93,6 +98,7 @@ const Diario = () => {
             progress: undefined,
             theme: "colored"        
           });        
+          localStorage.setItem('attemptsRemaining', attemptsRemaining - 1);
           setAttemptsRemaining(prevAttempts => prevAttempts - 1);
         }
         if (attemptsRemaining === 1 && !isCorrect) {
