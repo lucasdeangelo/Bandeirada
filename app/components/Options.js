@@ -47,7 +47,7 @@ const Options = ({ handleInputChange, countries }) => {
     <div className='flex flex-col'>
       <div className='flex'>
         <input
-          className='bg-slate-100 text-slate-600 h-12 pl-6 rounded-xl'
+          className='bg-slate-100 text-slate-600 sm:text-md sm:w-[30dvh] md:w-[40dvh] sm:h-10 md:h-12 3xl:h-12 sm:pl-2 3xl:pl-6 sm:rounded-lg 3xl:rounded-xl'
           type="text"
           placeholder="Digite o nome do país"
           value={inputValue}
@@ -55,7 +55,7 @@ const Options = ({ handleInputChange, countries }) => {
           disabled={gameDisabled}
           />
         <button
-          className='bg-slate-100 ml-2 h-12 px-3 rounded-xl' 
+          className='bg-slate-100 ml-2 sm:h-10 md:h-12 3xl:h-12 px-3 sm:rounded-lg 3xl:rounded-xl' 
           onClick={() => handleSubmit(inputValue)}
           disabled={gameDisabled}
         >
@@ -64,7 +64,7 @@ const Options = ({ handleInputChange, countries }) => {
       </div>
       <div className='flex flex-col mt-5'>
         {suggestions.length > 0 && (
-          <ul className="bg-slate-100 border border-gray-300 text-black rounded-xl w-[32dvh] max-w-[32dvh] max-h-48 overflow-y-auto">
+          <ul className="bg-slate-100 border border-gray-300 text-black sm:text-sm sm:rounded-lg md:rounded-xl 3xl:rounded-xl sm:w-[30dvh] md:w-[40dvh] 3xl:w-[40dvh] max-w-[40dvh] max-h-48 overflow-y-auto">
             {suggestions.map((country, index) => (
               <li
               key={index}

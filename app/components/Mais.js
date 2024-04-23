@@ -18,9 +18,8 @@ const Mais = ({maisModalisOpen, maisModalisClose}) => {
         },
         content: {
           margin: 'auto',
-          width: '50%', 
-          maxHeight: '50%',
-          overflow: 'auto'
+          width: '60%', 
+          maxHeight: '60%'
         }
       }}
     >

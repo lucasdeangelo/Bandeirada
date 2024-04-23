@@ -14,8 +14,11 @@ const Diario = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [gameOverModalOpen, setGameOverModalOpen] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [isInputEnabled, setIsInputEnabled] = useState(true);
   const [disabledInput, setDisabledInput] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+
 
   useEffect(() => {
     const gameDisabled = localStorage.getItem('gameDisabled');
@@ -44,6 +47,7 @@ const Diario = () => {
       setIsLoading(false);
     } else {      
       generateNewChallenge();
+      setIsInputEnabled(true);
     }
   }, []);
   
@@ -103,7 +107,7 @@ const Diario = () => {
         }
         if (attemptsRemaining === 1 && !isCorrect) {
           setGameOverModalOpen(true);
-          setDisabledInput(true);
+          setIsInputEnabled(false);
           localStorage.setItem('gameDisabled', 'true');
         }
       }
@@ -116,29 +120,28 @@ const Diario = () => {
     localStorage.setItem('gameDisabled', 'true');
   };
 
-  
-    
   return (
-    <div className='flex flex-col items-center justify-center'>
+    <div className='flex flex-col items-center justify-center overflow-hidden'>
       <MenuSuperior/>
 
-      <div className='bg-azul rounded-2xl w-[60dvh] h-[60dvh] flex flex-col items-center mt-20'>
+      <div className='bg-azul rounded-2xl sm:w-[40dvh] md:w-[50dvh] 3xl:w-[60dvh] h-[60dvh] flex flex-col items-center mt-12'>
       <ToastContainer />
+
       {isLoading && <p className='mt-[50%] font-bold'>Carregando desafio...</p>}
       {!isLoading && dailyChallenge &&(
         <div className='flex flex-col justify-center items-center mt-12'>
           <Flag flagUrl={dailyChallenge.flagUrl} />
           {showAnswer &&(
-            <p className='text-white font-bold text-2xl mt-2'>{dailyChallenge.countryName}</p>
+            <p className='text-white font-bold sm:text-lg md:text-xl 3xl:text-2xl mt-2'>{dailyChallenge.countryName}</p>
           )}
           <p className='text-white font-bold text-sm mt-5'>Tentativas restantes: {attemptsRemaining}</p>
           
-          <p className='text-white font-bold text-2xl my-5'>Qual é essa bandeira?</p>
+          <p className='text-white font-bold sm:text-lg md:text-xl 3xl:text-2xl my-5'>Qual é essa bandeira?</p>
           
           <Options
             handleInputChange={handleInputChange}
             countries={Object.values(country)}
-            disabled={disabledInput}                       
+            disabled={!isInputEnabled}                       
           />
         </div>        
       )}
