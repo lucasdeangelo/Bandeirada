@@ -18,8 +18,19 @@ const Diario = () => {
   const [disabledInput, setDisabledInput] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  useEffect(() => {
+    const gameDisabled = localStorage.getItem('gameDisabled');
+    const lastChallengeDate = localStorage.getItem('lastChallengeDate');
+    const today = new Date().toLocaleDateString();
 
-
+    if (gameDisabled === 'true' && lastChallengeDate !== today) {    
+      setShowAnswer(false);
+      setDisabledInput(false);
+      setIsInputEnabled(true);
+      localStorage.removeItem('gameDisabled'); 
+    } 
+  }, []);
+  
   useEffect(() => {
     const gameDisabled = localStorage.getItem('gameDisabled');
     if (gameDisabled === 'true') {
