@@ -1,6 +1,6 @@
 module.exports = {
     images: {
-      domains: ['flagsapi.com'],
+      domains: ['flagsapi.com', 'flagcdn.com'],
     },
   }
   
